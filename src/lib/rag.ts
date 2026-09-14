@@ -10,7 +10,7 @@ import { EMPRESA_ID } from "./empresa";
 
 const EMBEDDING_MODEL = "text-embedding-3-small";
 const MATCH_COUNT = 5;
-const MATCH_THRESHOLD = 0.75;
+const MATCH_THRESHOLD = 0.45;
 
 export interface ResultadoBusqueda {
   contenido: string;
