@@ -1,5 +1,5 @@
 {
-  "name": "mi-turno",
+  "name": "agente-procedimientos",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,6 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "next lint",
-    "setup-db": "tsx scripts/setup-db.ts",
     "ingest": "tsx --env-file=.env.local scripts/ingest-docs.ts"
   },
   "dependencies": {
@@ -17,17 +16,14 @@
     "ai": "^4.0.0",
     "mammoth": "^1.12.3",
     "next": "16.1.6",
-    "nodemailer": "^8.0.1",
     "pdf-parse": "^2.4.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "resend": "^6.9.2",
     "zod": "^3.25.7",
     "zod-to-json-schema": "^3.24.5"
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/nodemailer": "^7.0.9",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tsx": "^4.19.4",
