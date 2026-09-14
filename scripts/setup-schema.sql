@@ -47,7 +47,9 @@ returns table (
   documento text,
   similitud float
 )
-language sql stable security definer set search_path = public
+-- 'extensions' está en el search_path porque Supabase instala pgvector ahí
+-- (no en 'public'); sin esto, el operador <=> no se encuentra bajo security definer.
+language sql stable security definer set search_path = public, extensions
 as $$
   select
     c.contenido,
