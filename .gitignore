@@ -42,3 +42,6 @@ next-env.d.ts
 
 # documentos de procedimientos (contenido propio de cada empresa)
 /documentos
+
+# claude / local tools
+.claude/
