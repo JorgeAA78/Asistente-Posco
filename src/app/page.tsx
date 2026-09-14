@@ -16,6 +16,14 @@ export default function Home() {
     api: "/api/chat",
   });
 
+  // El indicador "Buscando..." solo debe mostrarse mientras esperamos el
+  // primer token/tool-call. Una vez que el mensaje del asistente empieza a
+  // tener contenido real en streaming, el indicador debe desaparecer en vez
+  // de quedar debajo del texto durante toda la respuesta.
+  const ultimoMensaje = messages[messages.length - 1];
+  const ultimoMensajeAsistenteTieneContenido =
+    ultimoMensaje?.role === "assistant" && ultimoMensaje.content.length > 0;
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -47,7 +55,7 @@ export default function Home() {
             </div>
           ))}
 
-          {isLoading && (
+          {isLoading && !ultimoMensajeAsistenteTieneContenido && (
             <div className={`${styles.message} ${styles.assistantMessage}`}>
               <div className={styles.messageContent}>
                 <span className={styles.typing}>Buscando en procedimientos...</span>

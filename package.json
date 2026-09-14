@@ -7,7 +7,8 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "next lint",
-    "ingest": "tsx --env-file=.env.local scripts/ingest-docs.ts"
+    "ingest": "tsx --env-file=.env.local scripts/ingest-docs.ts",
+    "test": "tsx --test src/**/*.test.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.0",
@@ -19,8 +20,7 @@
     "pdf-parse": "^2.4.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "zod": "^3.25.7",
-    "zod-to-json-schema": "^3.24.5"
+    "zod": "^3.25.7"
   },
   "devDependencies": {
     "@types/node": "^20",

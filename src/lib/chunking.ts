@@ -32,7 +32,10 @@ export function chunkText(
     if (paragraph.length > chunkSize) {
       pushCurrent();
       current = "";
-      for (let i = 0; i < paragraph.length; i += chunkSize - overlap) {
+      // Si overlap >= chunkSize el paso quedaría en cero o negativo y el
+      // loop nunca terminaría; se garantiza un avance mínimo de 1 caracter.
+      const paso = Math.max(1, chunkSize - overlap);
+      for (let i = 0; i < paragraph.length; i += paso) {
         chunks.push(paragraph.slice(i, i + chunkSize));
       }
       continue;

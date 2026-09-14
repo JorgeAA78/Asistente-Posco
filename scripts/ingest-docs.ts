@@ -20,10 +20,48 @@ import { PDFParse } from "pdf-parse";
 import mammoth from "mammoth";
 import { chunkText } from "../src/lib/chunking";
 import { EMPRESA_ID } from "../src/lib/empresa";
+import { EMBEDDING_MODEL } from "../src/lib/embeddings";
 
-const EMBEDDING_MODEL = "text-embedding-3-small";
 const EMBED_BATCH_SIZE = 100;
 const CARPETA_DEFAULT = "documentos";
+
+// Heurística para detectar extracciones probablemente fallidas (p.ej. PDFs
+// protegidos con IRM de Microsoft, que "extraen" un único párrafo de tipo
+// "no autorizado a ver este contenido" en vez del texto real). No bloquea
+// la ingesta: solo advierte fuerte en consola para que el operador lo note
+// antes de que el agente cite un documento con contenido vacío/basura.
+const MIN_TEXTO_CARACTERES = 500;
+const MIN_CHUNKS_PDF = 2;
+const PATRONES_ACCESO_DENEGADO = [
+  /not authorized to view/i,
+  /no autorizad[oa] a (ver|acceder)/i,
+  /access denied/i,
+  /acceso denegado/i,
+  /you do not have permission/i,
+  /no tenés permiso/i,
+];
+
+function detectarExtraccionSospechosa(
+  texto: string,
+  chunks: string[],
+  tipo: TipoDocumento
+): string | null {
+  const textoPlano = texto.trim();
+
+  if (PATRONES_ACCESO_DENEGADO.some((patron) => patron.test(textoPlano))) {
+    return "el texto extraído coincide con un mensaje de acceso denegado/no autorizado (posible PDF protegido con IRM)";
+  }
+
+  if (textoPlano.length < MIN_TEXTO_CARACTERES) {
+    return `el texto extraído es muy corto (${textoPlano.length} caracteres) para un documento típico`;
+  }
+
+  if (tipo === "pdf" && chunks.length < MIN_CHUNKS_PDF) {
+    return `solo se generó ${chunks.length} chunk de un PDF, esperable si el archivo no tiene texto extraíble real`;
+  }
+
+  return null;
+}
 
 if (!process.env.SUPABASE_URL) {
   throw new Error("SUPABASE_URL no está configurada en las variables de entorno");
@@ -96,6 +134,14 @@ async function ingestarArchivo(rutaArchivo: string): Promise<number> {
   if (chunks.length === 0) {
     console.warn(`⚠️  [INGESTA] "${nombre}" no generó contenido para indexar, se omite.`);
     return 0;
+  }
+
+  const motivoSospecha = detectarExtraccionSospechosa(texto, chunks, tipo);
+  if (motivoSospecha) {
+    console.warn(
+      `⚠️  [INGESTA] "${nombre}": la extracción parece haber fallado (${motivoSospecha}). ` +
+        `Se ingiere igual, pero el agente podría citar este documento sin contenido real. Revisalo manualmente.`
+    );
   }
 
   // Idempotencia: si ya existe, lo reemplazamos por completo (cascade borra sus chunks)

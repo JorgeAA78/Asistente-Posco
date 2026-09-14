@@ -24,6 +24,7 @@ create table if not exists chunks (
   documento_id uuid not null references documentos(id) on delete cascade,
   empresa_id text not null,
   contenido text not null,
+  -- vector(1536) debe coincidir con EMBEDDING_DIMENSIONS en src/lib/embeddings.ts
   embedding vector(1536) not null,
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
@@ -39,14 +40,14 @@ create or replace function match_chunks(
   query_embedding vector(1536),
   p_empresa_id text,
   match_count int default 5,
-  match_threshold float default 0.75
+  match_threshold float default 0.45
 )
 returns table (
   contenido text,
   documento text,
   similitud float
 )
-language sql stable
+language sql stable security definer set search_path = public
 as $$
   select
     c.contenido,
@@ -63,3 +64,11 @@ $$;
 comment on table documentos is 'Documentos de procedimientos indexados por empresa';
 comment on table chunks is 'Fragmentos de texto de los documentos, con su embedding para búsqueda semántica';
 comment on function match_chunks is 'Devuelve los chunks más similares a un embedding de consulta, filtrados por empresa';
+
+-- RLS: se habilita sin políticas (default-deny) para bloquear el acceso directo
+-- a las tablas vía la anon/authenticated key. Solo service_role (usado por el
+-- script de ingesta) puede leer/escribir directamente. El path de lectura de la
+-- app (anon key) sigue funcionando porque match_chunks es security definer:
+-- corre con los privilegios del owner de la función, evitando RLS.
+alter table documentos enable row level security;
+alter table chunks enable row level security;

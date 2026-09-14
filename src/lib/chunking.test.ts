@@ -41,3 +41,17 @@ test("parte un parrafo individual mas largo que el tamano maximo", () => {
     assert.ok(chunk.length <= 1500);
   }
 });
+
+test("no entra en loop infinito cuando overlap >= chunkSize", () => {
+  const parrafoLargo = "Y".repeat(5000);
+
+  // overlap === chunkSize haria que el paso del loop fuera 0 sin el guard;
+  // overlap > chunkSize lo haria negativo. Probamos ambos casos y solo
+  // afirmamos que la funcion retorna (si hay guard, retorna casi al
+  // instante; sin guard, este test cuelga y el runner lo mata por timeout).
+  const chunksIgual = chunkText(parrafoLargo, 1500, 1500);
+  assert.ok(chunksIgual.length > 0);
+
+  const chunksMayor = chunkText(parrafoLargo, 1500, 2000);
+  assert.ok(chunksMayor.length > 0);
+});
