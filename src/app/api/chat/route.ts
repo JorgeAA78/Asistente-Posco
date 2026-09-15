@@ -11,7 +11,7 @@ import { streamText, tool } from "ai";
 import { z } from "zod";
 import { toolBuscarProcedimientos } from "@/lib/rag";
 
-const model = openai("gpt-4.1-mini");
+const model = openai("gpt-4o");
 const MAX_STEPS = 5;
 
 // Solo "user"/"assistant": el schema del SDK acepta role "system", lo que

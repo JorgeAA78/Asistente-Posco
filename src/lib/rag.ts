@@ -17,7 +17,7 @@ import { EMBEDDING_MODEL } from "./embeddings";
 // "on-topic" del resto. A medida que se agreguen más documentos, puede
 // requerir re-calibración.
 const MATCH_COUNT = 5;
-const MATCH_THRESHOLD = 0.45;
+const MATCH_THRESHOLD = 0.35;
 
 export interface ResultadoBusqueda {
   contenido: string;
